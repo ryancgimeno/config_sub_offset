@@ -1,0 +1,3 @@
+- make work with .ass files
+- created another program that renames subtitles to match the video file name or just a program that edits the video / sub file name and gives the right number to it
+- set start and stopping points if only certain lines of a file need to be adjusted
