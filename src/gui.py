@@ -10,22 +10,12 @@ from src.file_process_srt import process_srt
 from src.full_process import process_folder
 
 
-# TODO - the window should NOT do any of the processing, it should just give the information it has
-# and then the other modules will handle it
-
-# in other words, do not import any of the modules ive made so far
-
-
-# the main problem im running into is how do i get the information from the class into the main function?
-
 class Window:
     """
     Graphical interface for the subtitle offset program
     """
-
-    debug = 'Y'  # either is 'Y' or 'N'
-
     def __init__(self) -> None:
+        # Initializing attributes
         self._file_path = None
         self._offset = None
         self._line_range = None
@@ -42,12 +32,10 @@ class Window:
         # Creates the folder selection label and button
         file_label = tk.Label(self.root,
                               text = 'Select a folder')
-        # file_label.pack()
 
         file_button = tk.Button(self.root,
                                 command = self._ask_directory,
                                 text = 'Select')
-        # file_button.pack()
 
         # Declares the variable for storing offset and line range
         self._offset = tk.IntVar()
@@ -56,11 +44,9 @@ class Window:
         # Creates the offset label and entry
         offset_label = tk.Label(self.root,
                                 text = 'Set offset amount (ms)')
-        # offset_label.pack()
 
         offset_entry = tk.Entry(self.root,
                                 textvariable = self._offset)
-        # offset_entry.pack()
 
         # Creates the line range label and entry
         line_range_label = tk.Label(self.root,
@@ -69,18 +55,16 @@ class Window:
         line_range_entry = tk.Entry(self.root,
                                     textvariable = self._line_range)
 
-
         # Creates the run button
         run_button = tk.Button(self.root,
-                               command = self._create_input_dictionary,
+                               command = self._run,
                                text = 'Run')
 
-        # If debug mode is on, then there will be a print button
-        if self.debug == 'Y':
-            print_button = tk.Button(self.root,
-                                     command = self.print_values,
-                                     text = 'print')
-            print_button.grid(column = 5, row = 6)
+        # Temporary print button for debugging
+        print_button = tk.Button(self.root,
+                                 command = self.print_values,
+                                 text = 'print')
+        print_button.grid(column = 5, row = 6)
 
         # Sets the grid up
         file_button.grid(column = 0, row = 0)
@@ -99,36 +83,25 @@ class Window:
 
 
     def print_values(self):
+        """
+        Debugging function to print the input dictionary
+        """
         print(self._input_dict)
 
 
     def _ask_directory(self) -> None:
+        """
+        Asks the user for a directory to choose and saves the Path as a class attribute
+        """
         self._file_path = Path(fd.askdirectory())
 
 
-    def _create_input_dictionary(self) -> None:
-        # the .get() is necessary for offset and line range because they are tkinter TypeVars and not 
-        # their actual types
-
-        print(f'Before the conditional, file: {self._file_path}, offset: {self._offset.get()},  line: {self._line_range.get()}')
-
-        if self._file_path and self._offset:
-            print('going into the postive in statment')
-            self._input_dict = {'file_path': self._file_path,
-                                'offset': self._offset.get(),  
-                                'line_range': self._line_range.get()}
-
-            process_folder(self._input_dict['file_path'], self._input_dict['offset'])
+    def _run(self) -> None:
+        """
+        Runs the logic of the program
+        """
+        process_folder(self._file_path, self._offset.get())
             
-            print('Setting input dictionary after success')
-
-        else:
-            # TODO - return an error or like pop up if all the required fields aren't filled in
-
-            print('Unsuccessful')
-
-            self._input_dict = None
-
 
     def file_path(self) -> Path:
         """
