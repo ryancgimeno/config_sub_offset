@@ -4,6 +4,7 @@ Defines the Graphical User Interface (GUI) for the subtile offset program using 
 
 import tkinter as tk
 from tkinter import filedialog as fd
+from tkinter import messagebox as mb
 from pathlib import Path
 
 from src.file_process_srt import process_srt
@@ -11,12 +12,14 @@ from src.full_process import process_folder
 
 
 # TODO:
+# - Maximize test coverage
+# - Implement line range feature
+# - Add new button that specifies whether the user wants to deal with file(s) or a folder
 # - Add exceptions when necessary
 # - Add pop up messages
 # - Customize formatting of the window
 # - Make more organized (order of functions, maybe some aren't necessary or can be combined)
-
-
+# - Show the user what file(s)/folder they selected
 
 
 class Window:
@@ -71,7 +74,7 @@ class Window:
 
         # Temporary print button for debugging
         print_button = tk.Button(self.root,
-                                 command = self.print_values,
+                                 command = self._print_values,
                                  text = 'print')
         print_button.grid(column = 5, row = 6)
 
@@ -91,13 +94,6 @@ class Window:
         self.root.mainloop()
 
 
-    def print_values(self):
-        """
-        Debugging function to print the input dictionary
-        """
-        print(self._input_dict)
-
-
     def _ask_directory(self) -> None:
         """
         Asks the user for a directory to choose and saves the Path as a class attribute
@@ -107,11 +103,13 @@ class Window:
 
     def _run(self) -> None:
         """
-        Runs the logic of the program
+        Executes the main logic of the program after the user enters their inputs and presses the 'Run' button
         """
         process_folder(self._file_path, self._offset.get())
-            
 
-if __name__ == '__main__':
-    window = Window()
-    window.initialize()
+
+    def _print_values(self):
+        """
+        Debugging function to print the input dictionary
+        """
+        print(self._input_dict)

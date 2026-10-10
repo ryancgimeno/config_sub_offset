@@ -1,15 +1,44 @@
-from pathlib import Path
 import fileinput
+from pathlib import Path
+
 
 # srt format:
 # 0         1         2
 # 01234567890123456789012345678
 # 00:01:23,792 --> 00:01:29,798
 
+def process_srt(file: Path, offset: int) -> None:
+    """
+    Adjusts the timing of an .srt file given a path and an offset in milliseconds
+    """
+    offset_list = _initialize_offset(offset)
+    with fileinput.FileInput(file, inplace = True, encoding = 'utf-8') as f:
+        for line in f:
+            if '-->' in line:
+                srt_split_line = _split_line(line)
+
+                first_time = _split_time(srt_split_line[0])
+                second_time = _split_time(srt_split_line[2])
+
+                if offset > 0:
+
+                    new_first_time = _change_offset(first_time, offset_list)
+                    new_second_time = _change_offset(second_time, offset_list)
+                else:
+                    new_first_time = _change_offset_negative(first_time, offset_list)
+                    new_second_time = _change_offset_negative(second_time, offset_list)
+
+                new_line = _reformat_line(_reformat_time(new_first_time), _reformat_time(new_second_time))
+
+                print(line.replace(line, new_line))
+
+            else:
+                print(line, end='')
+
 
 def _split_line(line: str) -> list[str]:
     """
-    Splits a string into a list of substrings using space as the delimiter.
+    Splits a string into a list of substrings using space as the delimiter
     """
     return line.split()
 
@@ -17,7 +46,7 @@ def _split_line(line: str) -> list[str]:
 def _split_time(formatted_time: str) -> list[int]:
     """
     Takes an .srt formatted time (XX:XX:XX,XXX) and
-    converts each unit of time into a list of integers.
+    converts each unit of time into a list of integers
     """
     hours = int(formatted_time[:2])
     minutes = int(formatted_time[3:5])
@@ -29,7 +58,7 @@ def _split_time(formatted_time: str) -> list[int]:
 
 def _initialize_offset(offset: int) -> list[int]:
     """
-    Offset is in milliseconds
+    Takes offset in milliseconds and converts it to [hours, minutes, seconds, milliseconds]
     """
     if offset < 0:
         offset_negative = True
@@ -50,6 +79,10 @@ def _initialize_offset(offset: int) -> list[int]:
 
 
 def _change_offset(time_list: list[int], offset_list: list[int]) -> list[int]:
+    """
+    'Carries over' in addition if any of the values are above what they are supposed to be. For example, 
+    if the adjusted amount of seconds is 62, it will increase minutes by 1 and update seconds to 2
+    """
     changed_time_list = []
     i = 0
     while i in range(4):
@@ -69,8 +102,11 @@ def _change_offset(time_list: list[int], offset_list: list[int]) -> list[int]:
 
     return changed_time_list
 
-# TODO
+
 def _change_offset_negative(time_list: list[int], offset_list: list[int]) -> list[int]:
+    """
+    Same as _change_offset but if the offset is negative
+    """
     changed_time_list = []
     i = 0
     while i in range(4):
@@ -96,6 +132,9 @@ def _change_offset_negative(time_list: list[int], offset_list: list[int]) -> lis
 
 
 def _reformat_time(time_list: list[int]):
+    """
+    Adds leading zeroes to the new time when necessary
+    """
     str_list = [str(x) for x in time_list]
 
     i = 0
@@ -115,30 +154,9 @@ def _reformat_time(time_list: list[int]):
 
 
 def _reformat_line(first_time: str, second_time: str) -> str:
+    """
+    Combines the components of a line into a single string
+    """
     return first_time + ' --> ' + second_time
 
 
-def process_srt(file: Path, offset: int) -> None:
-    offset_list = _initialize_offset(offset)
-    with fileinput.FileInput(file, inplace = True, encoding = 'utf-8') as f:
-        for line in f:
-            if '-->' in line:
-                srt_split_line = _split_line(line)
-
-                first_time = _split_time(srt_split_line[0])
-                second_time = _split_time(srt_split_line[2])
-
-                if offset > 0:
-
-                    new_first_time = _change_offset(first_time, offset_list)
-                    new_second_time = _change_offset(second_time, offset_list)
-                else:
-                    new_first_time = _change_offset_negative(first_time, offset_list)
-                    new_second_time = _change_offset_negative(second_time, offset_list)
-
-                new_line = _reformat_line(_reformat_time(new_first_time), _reformat_time(new_second_time))
-
-                print(line.replace(line, new_line))
-
-            else:
-                print(line, end='')
