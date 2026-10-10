@@ -49,8 +49,8 @@ class Window:
         # file_button.pack()
 
         # Declares the variable for storing offset and line range
-        offset = tk.IntVar()
-        line_range = tk.StringVar()
+        self._offset = tk.IntVar()
+        self._line_range = tk.StringVar()
 
         # Creates the offset label and entry
         offset_label = tk.Label(root,
@@ -58,7 +58,7 @@ class Window:
         # offset_label.pack()
 
         offset_entry = tk.Entry(root,
-                                textvariable = offset)
+                                textvariable = self._offset)
         # offset_entry.pack()
 
         # Creates the line range label and entry
@@ -66,7 +66,7 @@ class Window:
                                     text = '[OPTIONAL] Set Line Range (Format is 7-15, inclusive)')
 
         line_range_entry = tk.Entry(root,
-                                    textvariable = line_range)
+                                    textvariable = self._line_range)
 
 
         # Creates the run button
@@ -105,17 +105,15 @@ class Window:
         self._file_path = Path(fd.askdirectory())
 
 
-    def _save_offset(self) -> None:
-        self._offset = ...
-
-
     def _create_input_dictionary(self) -> None:
+        # the .get() is necessary for offset and line range because they are tkinter TypeVars and not 
+        # their actual types
         print('create input dict being run')
         if self._file_path and self._offset:
             print('going into the postive in stamtent')
             self._input_dict = {'file_path': self._file_path,
-                                'offset': self._offset,
-                                'line_range': self._line_range}
+                                'offset': self._offset.get(),  
+                                'line_range': self._line_range.get()}
             print('setting input dict success')
         else:
             # TODO - return an error or like pop up if all the required fields aren't filled in
@@ -152,7 +150,7 @@ class Window:
 
 
     def print_values(self):
-        print(self.__dict__)
+        print(self._input_dict)
 
 
 if __name__ == '__main__':
