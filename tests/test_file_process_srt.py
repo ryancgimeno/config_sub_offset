@@ -1,5 +1,5 @@
 import unittest
-import file_process_srt
+import src.file_process_srt as file_process_srt
 
 
 class TestPrivateFunctions(unittest.TestCase):

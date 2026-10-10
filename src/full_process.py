@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from file_process_srt import *
-from file_process_ass import *
+from src.file_process_srt import *
+from src.file_process_ass import *
 
 def process_folder(directory: str, offset: int):
     p = Path(directory)

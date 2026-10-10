@@ -1,7 +1,5 @@
-import tkinter
-from tkinter import filedialog
-from file_process_srt import *
-from full_process import *
+from src.file_process_srt import *
+from src.full_process import *
 
 OFFSET_PROMPT = 'Offset: '
 FOLDER_PROMPT = 'Folder Directory: '

@@ -1,5 +1,5 @@
 import unittest
-from full_process import *
+from src.full_process import *
 
 
 class TestProcessFolder(unittest.TestCase):
