@@ -6,6 +6,9 @@ import tkinter as tk
 from tkinter import filedialog as fd
 from pathlib import Path
 
+from src.file_process_srt import process_srt
+from src.full_process import process_folder
+
 
 # TODO - the window should NOT do any of the processing, it should just give the information it has
 # and then the other modules will handle it
@@ -19,31 +22,29 @@ class Window:
     """
     Graphical interface for the subtitle offset program
     """
+
+    debug = 'Y'  # either is 'Y' or 'N'
+
     def __init__(self) -> None:
         self._file_path = None
         self._offset = None
         self._line_range = None
         self._input_dict = None
 
-
-    def initialize(self):
-        """
-        Creates the entire window
-        """
         # Creates the root window
-        root = tk.Tk()
-        root.title('Subtitle Offset')
-        root.geometry('700x800')
+        self.root = tk.Tk()
+        self.root.title('Subtitle Offset')
+        self.root.geometry('700x800')
 
         # Sets the logo on the top left
-        root.iconphoto(False, tk.PhotoImage(file = 'logo.png'))
+        self.root.iconphoto(False, tk.PhotoImage(file = 'logo.png'))
 
         # Creates the folder selection label and button
-        file_label = tk.Label(root,
+        file_label = tk.Label(self.root,
                               text = 'Select a folder')
         # file_label.pack()
 
-        file_button = tk.Button(root,
+        file_button = tk.Button(self.root,
                                 command = self._ask_directory,
                                 text = 'Select')
         # file_button.pack()
@@ -53,32 +54,33 @@ class Window:
         self._line_range = tk.StringVar()
 
         # Creates the offset label and entry
-        offset_label = tk.Label(root,
+        offset_label = tk.Label(self.root,
                                 text = 'Set offset amount (ms)')
         # offset_label.pack()
 
-        offset_entry = tk.Entry(root,
+        offset_entry = tk.Entry(self.root,
                                 textvariable = self._offset)
         # offset_entry.pack()
 
         # Creates the line range label and entry
-        line_range_label = tk.Label(root,
+        line_range_label = tk.Label(self.root,
                                     text = '[OPTIONAL] Set Line Range (Format is 7-15, inclusive)')
 
-        line_range_entry = tk.Entry(root,
+        line_range_entry = tk.Entry(self.root,
                                     textvariable = self._line_range)
 
 
         # Creates the run button
-        run_button = tk.Button(root,
+        run_button = tk.Button(self.root,
                                command = self._create_input_dictionary,
                                text = 'Run')
 
-        # Test Button
-        print_button = tk.Button(root,
-                                 command = self.print_values,
-                                 text = 'print')
-
+        # If debug mode is on, then there will be a print button
+        if self.debug == 'Y':
+            print_button = tk.Button(self.root,
+                                     command = self.print_values,
+                                     text = 'print')
+            print_button.grid(column = 5, row = 6)
 
         # Sets the grid up
         file_button.grid(column = 0, row = 0)
@@ -92,13 +94,12 @@ class Window:
 
         run_button.grid(column = 0, row = 5)
 
-        print_button.grid(column = 5, row = 6)
-
-
-
-
         # Keeps the window running
-        root.mainloop()
+        self.root.mainloop()
+
+
+    def print_values(self):
+        print(self._input_dict)
 
 
     def _ask_directory(self) -> None:
@@ -108,16 +109,24 @@ class Window:
     def _create_input_dictionary(self) -> None:
         # the .get() is necessary for offset and line range because they are tkinter TypeVars and not 
         # their actual types
-        print('create input dict being run')
+
+        print(f'Before the conditional, file: {self._file_path}, offset: {self._offset.get()},  line: {self._line_range.get()}')
+
         if self._file_path and self._offset:
-            print('going into the postive in stamtent')
+            print('going into the postive in statment')
             self._input_dict = {'file_path': self._file_path,
                                 'offset': self._offset.get(),  
                                 'line_range': self._line_range.get()}
-            print('setting input dict success')
+
+            process_folder(self._input_dict['file_path'], self._input_dict['offset'])
+            
+            print('Setting input dictionary after success')
+
         else:
             # TODO - return an error or like pop up if all the required fields aren't filled in
-            print('uncessful')
+
+            print('Unsuccessful')
+
             self._input_dict = None
 
 
@@ -147,10 +156,6 @@ class Window:
         Returns the user's input in a dictionary
         """
         return self._input_dict
-
-
-    def print_values(self):
-        print(self._input_dict)
 
 
 if __name__ == '__main__':
