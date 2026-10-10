@@ -10,6 +10,15 @@ from src.file_process_srt import process_srt
 from src.full_process import process_folder
 
 
+# TODO:
+# - Add exceptions when necessary
+# - Add pop up messages
+# - Customize formatting of the window
+# - Make more organized (order of functions, maybe some aren't necessary or can be combined)
+
+
+
+
 class Window:
     """
     Graphical interface for the subtitle offset program
@@ -102,34 +111,6 @@ class Window:
         """
         process_folder(self._file_path, self._offset.get())
             
-
-    def file_path(self) -> Path:
-        """
-        Returns the user's selected file path
-        """
-        return self._file_path
-
-
-    def offset(self) -> int:
-        """
-        Returns the user provided offset
-        """
-        return self._offset
-
-
-    def line_range(self) -> str:
-        """
-        Returns the user provided line range or None if they left it blank
-        """
-        return self._line_range
-
-
-    def input_dictionary(self) -> dict:
-        """
-        Returns the user's input in a dictionary
-        """
-        return self._input_dict
-
 
 if __name__ == '__main__':
     window = Window()
