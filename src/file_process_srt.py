@@ -7,33 +7,77 @@ from pathlib import Path
 # 01234567890123456789012345678
 # 00:01:23,792 --> 00:01:29,798
 
-def process_srt(file: Path, offset: int) -> None:
+def process_srt(file: Path, offset: int, *, start: int = None, stop: int = None) -> None:
     """
-    Adjusts the timing of an .srt file given a path and an offset in milliseconds
+    Adjusts the timing of an .srt file given a path and an offset in milliseconds. The user can specify the line to
+    start and or stop.
     """
+    # Toggles line range mode if 'start' and 'stop'are given as inputs
+    if start is not None and stop is not None:
+        line_range_mode = True
+    else:
+        line_range_mode = False
+
     offset_list = _initialize_offset(offset)
     with fileinput.FileInput(file, inplace = True, encoding = 'utf-8') as f:
-        for line in f:
-            if '-->' in line:
-                srt_split_line = _split_line(line)
+        if not line_range_mode:
+            for line in f:
+                if '-->' in line:
+                    srt_split_line = _split_line(line)
 
-                first_time = _split_time(srt_split_line[0])
-                second_time = _split_time(srt_split_line[2])
+                    first_time = _split_time(srt_split_line[0])
+                    second_time = _split_time(srt_split_line[2])
 
-                if offset > 0:
+                    if offset > 0:
+                        new_first_time = _change_offset(first_time, offset_list)
+                        new_second_time = _change_offset(second_time, offset_list)
+                    else:
+                        new_first_time = _change_offset_negative(first_time, offset_list)
+                        new_second_time = _change_offset_negative(second_time, offset_list)
 
-                    new_first_time = _change_offset(first_time, offset_list)
-                    new_second_time = _change_offset(second_time, offset_list)
+                    new_line = _reformat_line(_reformat_time(new_first_time), _reformat_time(new_second_time))
+
+                    print(line.replace(line, new_line))
+
                 else:
-                    new_first_time = _change_offset_negative(first_time, offset_list)
-                    new_second_time = _change_offset_negative(second_time, offset_list)
+                    print(line, end='')
 
-                new_line = _reformat_line(_reformat_time(new_first_time), _reformat_time(new_second_time))
+        elif line_range_mode:
+            in_line_range = False
+            
+            for line in f:
+                try:
+                    if start <= int(line) <= stop:
+                        in_line_range = True
+                    else:
+                        in_line_range = False
+                except Exception:
+                    pass
 
-                print(line.replace(line, new_line))
+                if in_line_range:
+                    if '-->' in line:
+                        srt_split_line = _split_line(line)
 
-            else:
-                print(line, end='')
+                        first_time = _split_time(srt_split_line[0])
+                        second_time = _split_time(srt_split_line[2])
+
+                        if offset > 0:
+                            new_first_time = _change_offset(first_time, offset_list)
+                            new_second_time = _change_offset(second_time, offset_list)
+                        else:
+                            new_first_time = _change_offset_negative(first_time, offset_list)
+                            new_second_time = _change_offset_negative(second_time, offset_list)
+
+                        new_line = _reformat_line(_reformat_time(new_first_time), _reformat_time(new_second_time))
+
+                        print(line.replace(line, new_line))
+
+                    else:
+                        print(line, end = '')
+                
+                elif not in_line_range:
+                    print(line, end = '')
+
 
 
 def _split_line(line: str) -> list[str]:
