@@ -105,7 +105,16 @@ class Window:
         """
         Executes the main logic of the program after the user enters their inputs and presses the 'Run' button
         """
-        process_folder(self._file_path, self._offset.get())
+        if not self._line_range:
+            process_folder(self._file_path, self._offset.get())
+        else:
+            self._process_line_range()
+            process_folder(self._file_path, self._offset.get(), self._line_range[0], self._line_range[1])
+
+
+    def _process_line_range(self) -> None:
+        self._line_range = self._line_range.get().split(sep = '-')
+        self._line_range = [int(x) for x in self._line_range]
 
 
     def _print_values(self):

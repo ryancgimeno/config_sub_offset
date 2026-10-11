@@ -7,7 +7,7 @@ from pathlib import Path
 # 01234567890123456789012345678
 # 00:01:23,792 --> 00:01:29,798
 
-def process_srt(file: Path, offset: int, *, start: int = None, stop: int = None) -> None:
+def process_srt(file: Path, offset: int, start: int, stop: int) -> None:
     """
     Adjusts the timing of an .srt file given a path and an offset in milliseconds. The user can specify the line to
     start and or stop.
@@ -77,7 +77,6 @@ def process_srt(file: Path, offset: int, *, start: int = None, stop: int = None)
                 
                 elif not in_line_range:
                     print(line, end = '')
-
 
 
 def _split_line(line: str) -> list[str]:

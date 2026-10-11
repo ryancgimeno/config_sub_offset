@@ -15,7 +15,7 @@ class FileProcessError(Exception):
         return f"Selected file '{self.file}' was unable to be processed"
 
 
-def process_folder(directory: str, offset: int):
+def process_folder(directory: str, offset: int, start: int = None, stop: int = None):
     """
     Adjusts the timing of all subtitle files in a given directory by the specified offset
     """
@@ -26,7 +26,7 @@ def process_folder(directory: str, offset: int):
 
     for file in p.iterdir():
         if file.suffix == '.srt':
-            process_srt(file, offset)
+            process_srt(file, offset, start, stop)
         elif file.suffix == '.ass':
             process_ass(file)
         else:
